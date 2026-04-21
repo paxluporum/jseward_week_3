@@ -3,9 +3,12 @@ var context;
 var ball;
 var timer;
 var interval = 1000 / 60; //60 fps
-var counter = 0;
+//var counter = 0;
 var player1;
 var player2;
+
+var score1 = 0;
+var score2 = 0;
 
 var frictionX = .5;
 var frictionY = .8;
@@ -67,9 +70,16 @@ function animate() {
 
     //////////////////////// Losing Condition
 
-    if (ball.x - ball.radius < 0 || ball.x - ball.radius > 1024) {
+    if (ball.x - ball.radius < 0) {
         ball.x = canvas.width / 2; // respawns in middle
         ball.vx *= -1; // when respawning ball goes away from paddle
+        score2 = score2 + 1;
+    }
+
+    if (ball.x - ball.radius > 1024) {
+        ball.x = canvas.width / 2;
+        ball.vx *= -1;
+        score1= score1 + 1;
     }
 
 
@@ -136,10 +146,11 @@ function animate() {
     // npc2.drawCircle();
     // npc3.drawRect();
 
-    // Display
-    // context.fillStyle = "black";                  // text color
-    // context.font = "bold 28px Arial";             // text style and size
-    // context.fillText("Bounces: " + counter, 20, 50);  // text + position
+    //Display
+    context.fillStyle = "black";                  // text color
+    context.font = "bold 28px Arial";             // text style and size
+    context.fillText("Player 1 || Player 2", 350, 50);
+    context.fillText(score1 + " - " + score2, 445, 100);  // text + position
 
 // console.log("Current bounces:", counter);
 }
@@ -199,7 +210,7 @@ function doCheckPaddleBounds() {
         player1.vy = 0;
     }
 
-    // Clamp PLAYER 2 (right paddle) — exactly the same math
+    // Clamp PLAYER 2 (right paddle)
     if (player2.y - player2.height / 2 < 0) {
         player2.y = player2.height / 2;
         player2.vy = 0;

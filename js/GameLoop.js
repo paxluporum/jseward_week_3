@@ -5,6 +5,7 @@ var timer;
 var interval = 1000 / 60; //60 fps
 var counter = 0;
 var player1;
+var player2;
 
 var frictionX = .5;
 var frictionY = .8;
@@ -18,6 +19,7 @@ ball.vx = -4; //horizontal movement
 ball.vy = 0; // vertical movement
 
 player1 = new GameObject(100, canvas.height / 2, 25, 100, "#8400ff5e");
+player2 = new GameObject(924, canvas.height / 2, 25, 100, "#ff0000");
 
 // npc1 = new GameObject(300, canvas.height / 2, 100, 100, "#00ffff");
 // npc2 = new GameObject(600, canvas.height / 2, 100, 100, "#1900ff");
@@ -32,32 +34,18 @@ function animate() {
     doHandleFriction();
     // doHandleGravity();
     doUpdatePosition();
-    doCheckBottomBounds();
+    doCheckPaddleBounds();
 
 
-    player1.move();
-    // if (w) {
-    //     player1.y -= 4
-    // }
-
-    // if (s) {
-    //     player1.y += 4
-    // }
-
-//////////////////////////STOPS PADDLE FROM GOING OFF SCREEN
-    // if (player1.y - player1.height / 2 < 0) {
-    //     player1.y = player1.height / 2;                    // top edge touches canvas top
-    // }
-    // if (player1.y + player1.height / 2 > canvas.height) {
-    //     player1.y = canvas.height - player1.height / 2;    // bottom edge touches canvas bottom
-    // }
+    // player1.move();
+    // player2.move();
 
     ball.move();
     // BOUNCE OFF RIGHT WALL
-    if (ball.x + ball.radius > canvas.width) {
-        ball.x = canvas.width - ball.radius;   // push ball back to the edge
-        ball.vx *= -1;                         // reverse horizontal direction
-    }
+    // if (ball.x + ball.radius > canvas.width) {
+    //     ball.x = canvas.width - ball.radius;   // push ball back to the edge
+    //     ball.vx *= -1;                         // reverse horizontal direction
+    // }
 
     // // BOUNCE OFF LEFT WALL
     // if (ball.x - ball.radius < 0) {
@@ -79,7 +67,7 @@ function animate() {
 
     //////////////////////// Losing Condition
 
-    if (ball.x - ball.radius < 0) {
+    if (ball.x - ball.radius < 0 || ball.x - ball.radius > 1024) {
         ball.x = canvas.width / 2; // respawns in middle
         ball.vx *= -1; // when respawning ball goes away from paddle
     }
@@ -89,26 +77,39 @@ function animate() {
 
     // Player collision
 
-    // === BALL HITS PLAYER PADDLE (left side) ===
+// === BALL COLLISION WITH BOTH PADDLES ===
     if (player1.collisionCheck(ball)) {
-        // Push the ball just outside the paddle so it doesn't get stuck inside
         ball.x = player1.right() + ball.radius;
         ball.vx *= -1;
 
-        //top 1/3
-        if (ball.y < player1.y - player1.height / 6 ) {
+        if (ball.y < player1.y - player1.height / 6) {
+            ball.vy = -4;      // top third → up
+        }
+        else if (ball.y > player1.y + player1.height / 6) {
+            ball.vy = 4;       // bottom third → down
+        }
+        else {
+            ball.vy = 0;       // middle third → straight
+        }
+    }
+
+    if (player2.collisionCheck(ball)) {
+        ball.x = player2.left() - ball.radius;    // push to the left of right paddle
+        ball.vx *= -1;
+
+        if (ball.y < player2.y - player2.height / 6) {
             ball.vy = -4;
         }
-        //bottom 1/3
-        else if (ball.y > player1.y + player1.height /6) {
+        else if (ball.y > player2.y + player2.height / 6) {
             ball.vy = 4;
         }
-        // middle
         else {
             ball.vy = 0;
         }
+    }
+    
+
     // Reverse the horizontal velocity 
-}
     // //NPC1 collision stuff
     // if (npc1.collisionCheck(ball)) {
     //     npc1.color = "#bbff00";
@@ -129,6 +130,7 @@ function animate() {
     // }
 
     player1.drawRect();
+    player2.drawRect();
     ball.drawCircle(); // everything above this does not visually appear untul this function is called
     // npc1.drawCircle();
     // npc2.drawCircle();
@@ -138,9 +140,9 @@ function animate() {
     // context.fillStyle = "black";                  // text color
     // context.font = "bold 28px Arial";             // text style and size
     // context.fillText("Bounces: " + counter, 20, 50);  // text + position
-}
-// console.log("Current bounces:", counter);
 
+// console.log("Current bounces:", counter);
+}
 
 function doHandleAcceleration()
 {
@@ -152,12 +154,24 @@ function doHandleAcceleration()
     {
         player1.vy += player1.ay * -player1.force;
     }
+
+    if (down)
+    {
+        player2.vy += player2.ay * player2.force;
+    }
+    if (up)
+    {
+        player2.vy += player2.ay * -player2.force;
+    }
+
+
+
 }
 
 function doHandleFriction()
 {
     player1.vy *= frictionY;
-
+    player2.vy *= frictionY;
 }
 
 // function doHandleGravity()
@@ -170,15 +184,29 @@ function doUpdatePosition()
 {
     player1.x += player1.vx;
     player1.y += player1.vy;
+    player2.x += player2.vx;
+    player2.y += player2.vy;
 }
 
-function doCheckBottomBounds()
-{
-    if (player1.y > canvas.height - player1.height/2)
-    {
-        player1.y = canvas.height - player1.height/2;
+function doCheckPaddleBounds() {
+    // Clamp PLAYER 1 (left paddle)
+    if (player1.y - player1.height / 2 < 0) {
+        player1.y = player1.height / 2;      // stick to top
+        player1.vy = 0;                      // stop momentum
+    }
+    if (player1.y + player1.height / 2 > canvas.height) {
+        player1.y = canvas.height - player1.height / 2;   // stick to bottom
         player1.vy = 0;
-        doJump();
+    }
+
+    // Clamp PLAYER 2 (right paddle) — exactly the same math
+    if (player2.y - player2.height / 2 < 0) {
+        player2.y = player2.height / 2;
+        player2.vy = 0;
+    }
+    if (player2.y + player2.height / 2 > canvas.height) {
+        player2.y = canvas.height - player2.height / 2;
+        player2.vy = 0;
     }
 }
 
@@ -193,4 +221,3 @@ function doCheckBottomBounds()
 //     {
 //         player1.vy = -40;
 //     }
-// }

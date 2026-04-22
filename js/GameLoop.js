@@ -14,6 +14,8 @@ var frictionX = .5;
 var frictionY = .8;
 var gravity = 1;
 
+var net;
+
 canvas = document.getElementById("canvas");
 context = canvas.getContext("2d");
 
@@ -23,6 +25,8 @@ ball.vy = 0; // vertical movement
 
 player1 = new GameObject(100, canvas.height / 2, 25, 100, "#8400ff5e");
 player2 = new GameObject(924, canvas.height / 2, 25, 100, "#ff0000");
+
+net = new GameObject(canvas.width / 2, canvas.height / 2, 20, 800, "#ffc527" )
 
 // npc1 = new GameObject(300, canvas.height / 2, 100, 100, "#00ffff");
 // npc2 = new GameObject(600, canvas.height / 2, 100, 100, "#1900ff");
@@ -138,7 +142,7 @@ function animate() {
     // {
     //     ball.prevX = ball.x;
     // }
-
+    net.drawRect();
     player1.drawRect();
     player2.drawRect();
     ball.drawCircle(); // everything above this does not visually appear untul this function is called
@@ -149,8 +153,11 @@ function animate() {
     //Display
     context.fillStyle = "black";                  // text color
     context.font = "bold 28px Arial";             // text style and size
-    context.fillText("Player 1 || Player 2", 350, 50);
-    context.fillText(score1 + " - " + score2, 445, 100);  // text + position
+    context.fillText("Player 1 || Player 2", 390, 50);
+    context.fillText(score1 + " - " + score2, 485, 100);  // text + position
+
+    //Net
+
 
 // console.log("Current bounces:", counter);
 }

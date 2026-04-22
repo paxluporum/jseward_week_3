@@ -14,7 +14,10 @@ var frictionX = .5;
 var frictionY = .8;
 var gravity = 1;
 
+var img=document.getElementById("ric");
 var net;
+
+
 
 canvas = document.getElementById("canvas");
 context = canvas.getContext("2d");
@@ -43,6 +46,7 @@ function animate() {
     doUpdatePosition();
     doCheckPaddleBounds();
 
+   // context.drawImage("ric", 100, 100, 100, 100);
 
     // player1.move();
     // player2.move();
@@ -145,7 +149,12 @@ function animate() {
     net.drawRect();
     player1.drawRect();
     player2.drawRect();
-    ball.drawCircle(); // everything above this does not visually appear untul this function is called
+    //ball.drawCircle(); // everything above this does not visually appear untul this function is called
+    context.drawImage(img, 
+                  ball.x - ball.width / 2,   // center horizontally
+                  ball.y - ball.height / 2,  // center vertically
+                  ball.width,                // width of the image
+                  ball.height);              // height of the image
     // npc1.drawCircle();
     // npc2.drawCircle();
     // npc3.drawRect();
@@ -161,6 +170,7 @@ function animate() {
 
 // console.log("Current bounces:", counter);
 }
+
 
 function doHandleAcceleration()
 {
